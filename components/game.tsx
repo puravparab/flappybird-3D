@@ -1,8 +1,8 @@
-// Game.tsx - Updated to add a name to the bird for reference
+// Game.tsx - Updated to add high score tracking
 'use client'
 
 import { Canvas } from '@react-three/fiber'
-import { Suspense, useState } from 'react'
+import { Suspense, useState, useEffect } from 'react' // Added useEffect
 import { PCFSoftShadowMap } from 'three'
 import UI from './ui'
 import Bird from './bird'
@@ -11,7 +11,16 @@ import Environment from './environment'
 
 export default function Game() {
   const [score, setScore] = useState(0)
+  const [highScore, setHighScore] = useState(0) // Added high score state
   const [gameState, setGameState] = useState<'start' | 'playing' | 'gameOver'>('start')
+
+  // Load high score from localStorage on component mount
+  useEffect(() => {
+    const savedHighScore = localStorage.getItem('flappyBirdHighScore')
+    if (savedHighScore) {
+      setHighScore(parseInt(savedHighScore))
+    }
+  }, [])
 
   const startGame = () => {
     setScore(0)
@@ -19,6 +28,12 @@ export default function Game() {
   }
   
   const endGame = () => {
+    // Update high score if current score is higher
+    if (score > highScore) {
+      setHighScore(score)
+      // Save to localStorage
+      localStorage.setItem('flappyBirdHighScore', score.toString())
+    }
     setGameState('gameOver')
   }
   
@@ -65,7 +80,6 @@ export default function Game() {
         <fog attach="fog" args={['#87CEEB', 50, 200]} />
         
         <Suspense fallback={null}>
-          {/* Add name="bird" to the Bird component for reference */}
           <Bird 
             gameState={gameState} 
             onGameOver={endGame}
@@ -83,6 +97,7 @@ export default function Game() {
       
       <UI 
         score={score} 
+        highScore={highScore} // Pass high score to UI
         gameState={gameState} 
         onStart={startGame} 
         onRestart={restartGame} 
