@@ -12,28 +12,20 @@ type EnvironmentProps = {
 // Helper function to create a natural mountain silhouette
 const createMountainShape = (width: number, height: number, segments: number) => {
   const shape = new THREE.Shape();
-  
-  // Start at the left edge, AT ground level (-5)
-  shape.moveTo(-width/2, -5);
-  
+  shape.moveTo(-width/2, -5); // Start at the left edge, AT ground level (-5)
   // Generate a natural mountain silhouette using sine waves with varying frequencies
   for (let i = 0; i <= segments; i++) {
     const x = -width/2 + (width * i / segments);
-    
     // Create height using multiple sine waves for natural variation
     const h1 = Math.sin(i / segments * Math.PI) * height * 0.7;
     const h2 = Math.sin(i / segments * Math.PI * 3) * height * 0.2;
     const h3 = Math.sin(i / segments * Math.PI * 7) * height * 0.1;
-    
     // Ensure the mountain never goes below ground level
     const y = Math.max(-5, h1 + h2 + h3);
-    
     shape.lineTo(x, y);
   }
-  
   // Close the shape by ending at ground level
   shape.lineTo(width/2, -5);
-  
   return shape;
 };
 
@@ -206,7 +198,6 @@ export default function Environment({ gameState }: EnvironmentProps) {
   const MountainRange = () => {
     return (
       <group>
-        {/* Create multiple layers of mountains with different depths for parallax effect */}
         {[0, 1, 2].map((layer) => {
           // Each layer has different depth, scale, and color
           const zPos = -5 - layer * 5;
@@ -251,7 +242,7 @@ export default function Environment({ gameState }: EnvironmentProps) {
           <meshStandardMaterial 
             color="#4caf50" 
             transparent={true}
-            opacity={0.7}
+            opacity={0.5}
             roughness={1}
           />
         </mesh>

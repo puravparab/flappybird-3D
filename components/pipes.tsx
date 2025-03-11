@@ -27,7 +27,7 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
   const lastPipeId = useRef(0)
   
   // Constants
-  const PIPE_SPACING = 20
+  const PIPE_SPACING = 18
   const PIPE_WIDTH = 2 // Keep collision width the same
   const PIPE_GAP_SIZE = 4
   const PIPE_COUNT = 10
