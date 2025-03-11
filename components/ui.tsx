@@ -109,7 +109,7 @@ export default function UI({ score, highScore, gameState, onStart, onRestart }: 
               className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-full shadow-lg pointer-events-auto cursor-pointer"
               onClick={onRestart}
             >
-              Press Space
+              Play Again
             </button>
             
             {/* Share to Twitter Button */}
