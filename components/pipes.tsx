@@ -1,4 +1,4 @@
-// pipes.tsx - Updated with smaller pipes and imported bird radius
+// pipes.tsx - Updated to ensure all bottom pipes cast shadows
 'use client'
 
 import { useRef, useEffect, useState, useMemo } from 'react'
@@ -134,6 +134,17 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
           
           if (pipeGroup) {
             pipeGroup.position.z = relativePipeZ
+            
+            // Ensure shadows are properly updated on all pipe meshes
+            pipeGroup.children.forEach((child, index) => {
+              if (child instanceof THREE.Mesh) {
+                // Bottom pipe (index 1) should cast shadows
+                if (index === 1) {
+                  child.castShadow = true;
+                }
+                child.receiveShadow = true;
+              }
+            });
           }
         }
         
@@ -180,7 +191,7 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
           position={[0, 0, pipe.zPosition]}
           userData={{ pipeId: pipe.id }}
         >
-          {/* Top pipe */}
+          {/* Top pipe - only receives shadows */}
           <mesh 
             position={[0, pipe.gapY + PIPE_GAP_SIZE/2 + PIPE_HEIGHT/2, 0]} 
             geometry={topPipeGeometry}
@@ -189,7 +200,7 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
             <meshStandardMaterial color="green" />
           </mesh>
           
-          {/* Bottom pipe */}
+          {/* Bottom pipe - casts and receives shadows */}
           <mesh 
             position={[0, pipe.gapY - PIPE_GAP_SIZE/2 - PIPE_HEIGHT/2, 0]} 
             geometry={bottomPipeGeometry}
