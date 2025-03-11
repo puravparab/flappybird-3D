@@ -1,4 +1,5 @@
-// pipes.tsx - Updated to ensure all bottom pipes cast shadows
+// pipes.tsx - Modified to show pipes on start screen
+
 'use client'
 
 import { useRef, useEffect, useState, useMemo } from 'react'
@@ -37,9 +38,9 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
   const COLLISION_THRESHOLD = 0.8
   const MIN_BOTTOM_PIPE_HEIGHT = 2 // Minimum height for bottom pipe from ground
   
-  // Generate initial pipes when game starts
+  // Generate initial pipes when game starts or on the start screen
   useEffect(() => {
-    if (gameState === 'playing') {
+    if (gameState === 'playing' || gameState === 'start') {
       const initialPipes: PipePair[] = []
       
       for (let i = 0; i < PIPE_COUNT; i++) {
@@ -95,7 +96,7 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
     new THREE.CylinderGeometry(PIPE_RADIUS, PIPE_RADIUS, PIPE_HEIGHT, 16), [])
   
   useFrame((state) => {
-    if (!pipesRef.current || gameState !== 'playing') return
+    if (!pipesRef.current || (gameState !== 'playing' && gameState !== 'start')) return
     
     // Find the bird object
     const bird = state.scene.getObjectByName('bird')
@@ -111,10 +112,12 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
       z: -birdForwardPosition // Negative because we're moving in negative Z
     }
     
-    // Check if we need to generate more pipes
-    const remainingVisiblePipes = pipeList.filter(pipe => !pipe.removed).length
-    if (remainingVisiblePipes <= PIPE_THRESHOLD) {
-      addNewPipes(PIPE_COUNT - PIPE_THRESHOLD) // Generate 5 more pipes when we have 5 left
+    // Check if we need to generate more pipes (only during playing state)
+    if (gameState === 'playing') {
+      const remainingVisiblePipes = pipeList.filter(pipe => !pipe.removed).length
+      if (remainingVisiblePipes <= PIPE_THRESHOLD) {
+        addNewPipes(PIPE_COUNT - PIPE_THRESHOLD) // Generate 5 more pipes when we have 5 left
+      }
     }
     
     // Process each pipe
@@ -148,8 +151,8 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
           }
         }
         
-        // Check for collisions - using imported BIRD_RADIUS
-        if (Math.abs(relativePipeZ) < PIPE_WIDTH * COLLISION_THRESHOLD) {
+        // Check for collisions - only during gameplay, not on start screen
+        if (gameState === 'playing' && Math.abs(relativePipeZ) < PIPE_WIDTH * COLLISION_THRESHOLD) {
           // Check if bird is within the pipe gap, considering bird radius
           const topGapEdge = pipe.gapY + PIPE_GAP_SIZE/2;
           const bottomGapEdge = pipe.gapY - PIPE_GAP_SIZE/2;
@@ -164,8 +167,8 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
           }
         }
         
-        // Mark pipe as passed and removed when bird passes it
-        if (!pipe.passed && relativePipeZ > 0 && Math.abs(relativePipeZ) < PIPE_WIDTH) {
+        // Mark pipe as passed and removed when bird passes it (only during gameplay)
+        if (gameState === 'playing' && !pipe.passed && relativePipeZ > 0 && Math.abs(relativePipeZ) < PIPE_WIDTH) {
           onScore() // Increase score
           return { ...pipe, passed: true, removed: true } // Immediately mark for removal
         }
@@ -175,17 +178,12 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
     })
   })
   
-  // Reset pipes when game restarts
-  useEffect(() => {
-    if (gameState === 'start') {
-      setPipeList([])
-      lastPipeId.current = 0
-    }
-  }, [gameState])
+  // Reset pipes when game restarts - no longer needed since we want pipes in start state
+  // This useEffect is removed
   
   return (
     <group ref={pipesRef}>
-      {gameState === 'playing' && pipeList.map(pipe => (
+      {(gameState === 'playing' || gameState === 'start') && pipeList.map(pipe => (
         <group 
           key={pipe.id} 
           position={[0, 0, pipe.zPosition]}
