@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import useControls from '@/hooks/useControls'
 
 interface UIProps {
@@ -13,21 +13,24 @@ interface UIProps {
 
 export default function UI({ score, highScore, gameState, onStart, onRestart }: UIProps) {
   const { flap } = useControls()
+  const [showAboutModal, setShowAboutModal] = useState(false)
   
-  // Handle keyboard controls for starting/restarting
+  // Handle keyboard controls for ui interactions
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === 'Space') {
         if (gameState === 'start') onStart()
         if (gameState === 'gameOver') onRestart()
       }
+      if (e.code === 'Escape' && showAboutModal) {
+        setShowAboutModal(false)
+      }
     }
-    
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [gameState, onStart, onRestart])
+  }, [gameState, onStart, onRestart, showAboutModal])
 
-  // Handle sharing to Twitter
+  // sharing to Twitter
   const shareToTwitter = () => {
     const isHighScore = score === highScore && score > 0;
     const shareText = isHighScore 
@@ -36,13 +39,64 @@ export default function UI({ score, highScore, gameState, onStart, onRestart }: 
     
     const url = window.location.href;
     const twitterIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(url)}`;
-    
-    // Open Twitter sharing in a new window
     window.open(twitterIntentUrl, '_blank', 'width=550,height=420');
   };
 
   return (
     <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute top-4 right-4 z-10">
+        <button
+          className="px-3 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-bold rounded-full shadow-lg pointer-events-auto cursor-pointer transition-all"
+          onClick={() => setShowAboutModal(true)}
+          aria-label="About"
+        >
+          About
+        </button>
+      </div>
+      
+      {/* About Modal */}
+      {showAboutModal && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/60 pointer-events-auto z-20">
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full m-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-gray-800">About Flappy Bird 3D</h2>
+              <button 
+                onClick={() => setShowAboutModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+                aria-label="Close"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="prose text-gray-600">
+              <p>Flappy Bird 3D is an experiment in creating a 3D browser game using purely AI tools in the least amount of time possible. This project was built in only 5 hours!</p>
+              
+              <h3 className="text-lg font-bold mt-4 text-gray-gray-800">Credits:</h3>
+              <ul className="list-disc pl-5">
+                <li>
+                  Built with <a href="https://threejs.org/" className="text-indigo-600 hover:underline" target="_blank" rel="noopener noreferrer">Three.js</a>
+                </li>
+                <li>
+                  Flappy Bird model from <a href="https://sketchfab.com/3d-models/flappy-bird-3d-vertex-colors-3f2bc66f220c46c3bfdb00e912ae245e" className="text-indigo-600 hover:underline" target="_blank" rel="noopener noreferrer">Sketchfab</a>
+                </li>
+              </ul>
+            </div>
+            
+            <div className="mt-6 text-right">
+              <button
+                onClick={() => setShowAboutModal(false)}
+                className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-bold rounded-md shadow-md"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Score display during gameplay */}
       {gameState === 'playing' && (
         <>
@@ -81,12 +135,12 @@ export default function UI({ score, highScore, gameState, onStart, onRestart }: 
             <p className="text-2xl text-white mb-4">High Score: {highScore}</p>
           )}
           <button 
-            className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-full shadow-lg pointer-events-auto cursor-pointer"
+            className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-full shadow-lg pointer-events-auto cursor-pointer mb-4"
             onClick={onStart}
           >
             Start Game
           </button>
-          <p className="mt-4 text-white">Press Space to Flap</p>
+          <p className="mt-2 text-white">Press Space to Flap</p>
         </div>
       )}
       
