@@ -27,6 +27,20 @@ export default function UI({ score, highScore, gameState, onStart, onRestart }: 
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [gameState, onStart, onRestart])
 
+  // Handle sharing to Twitter
+  const shareToTwitter = () => {
+    const isHighScore = score === highScore && score > 0;
+    const shareText = isHighScore 
+      ? `I just set a new high score of ${score} in Flappy Bird 3D! Can you beat it? #FlappyBird3D #NewHighScore`
+      : `I just scored ${score} in Flappy Bird 3D! #FlappyBird3D`;
+    
+    const url = window.location.href;
+    const twitterIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(url)}`;
+    
+    // Open Twitter sharing in a new window
+    window.open(twitterIntentUrl, '_blank', 'width=550,height=420');
+  };
+
   return (
     <div className="absolute inset-0 pointer-events-none">
       {/* Score display during gameplay */}
@@ -67,7 +81,7 @@ export default function UI({ score, highScore, gameState, onStart, onRestart }: 
             <p className="text-2xl text-white mb-4">High Score: {highScore}</p>
           )}
           <button 
-            className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-full shadow-lg pointer-events-auto"
+            className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-full shadow-lg pointer-events-auto cursor-pointer"
             onClick={onStart}
           >
             Start Game
@@ -90,12 +104,36 @@ export default function UI({ score, highScore, gameState, onStart, onRestart }: 
             </p>
           }
           
-          <button 
-            className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-full shadow-lg pointer-events-auto"
-            onClick={onRestart}
-          >
-            Play Again
-          </button>
+          <div className="flex space-x-4">
+            <button 
+              className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-full shadow-lg pointer-events-auto cursor-pointer"
+              onClick={onRestart}
+            >
+              Press Space
+            </button>
+            
+            {/* Share to Twitter Button */}
+            <button 
+              className={`px-6 py-3 ${
+                score === highScore && score > 0 
+                  ? 'bg-blue-500 hover:bg-blue-600' 
+                  : 'bg-blue-400 hover:bg-blue-500'
+              } text-white font-bold rounded-full shadow-lg pointer-events-auto flex items-center cursor-pointer`}
+              onClick={shareToTwitter}
+            >
+              <svg 
+                className="w-5 h-5 mr-2" 
+                fill="currentColor" 
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
+              </svg>
+              {score === highScore && score > 0 
+                ? 'Share New Record!' 
+                : 'Share Score'}
+            </button>
+          </div>
         </div>
       )}
     </div>

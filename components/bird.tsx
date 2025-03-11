@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Vector3 } from 'three'
-import { useGLTF, useAnimations, SpotLight } from '@react-three/drei'
+import { useGLTF, useAnimations } from '@react-three/drei'
 import * as THREE from 'three'
 import useControls from '@/hooks/useControls'
 
