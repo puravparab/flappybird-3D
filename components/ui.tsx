@@ -55,7 +55,7 @@ export default function UI({ score, highScore, gameState, onStart, onRestart }: 
           
           {/* Title and high score in the corner */}
           <div className="absolute top-4 left-4 text-left">
-            <h3 className="text-4xl font-bold text-white drop-shadow-lg">Flappy Bird 3D</h3>
+            <h3 className="text-xl md:text-4xl font-bold text-white drop-shadow-lg">Flappy Bird 3D</h3>
             <p className="text-sm text-white drop-shadow-lg">High Score: {highScore}</p>
           </div>
           
