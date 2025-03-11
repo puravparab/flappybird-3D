@@ -2,8 +2,8 @@
 'use client'
 
 import { useRef, useEffect, useState, useMemo } from 'react'
-import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { useFrame } from '@react-three/fiber'
 import { BIRD_RADIUS } from './bird' // Import bird radius
 
 type PipeProps = {
@@ -28,11 +28,11 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
   
   // Constants
   const PIPE_SPACING = 20
-  const PIPE_WIDTH = 2              // Keep collision width the same
+  const PIPE_WIDTH = 2 // Keep collision width the same
   const PIPE_GAP_SIZE = 4
   const PIPE_COUNT = 10
   const PIPE_THRESHOLD = 5 // Generate more pipes when we have 5 or fewer
-  const PIPE_RADIUS = 1.5           // Reduced from 2 to 1.5 to make pipes smaller
+  const PIPE_RADIUS = 1.5 // Reduced from 2 to 1.5 to make pipes smaller
   const PIPE_HEIGHT = 30
   const COLLISION_THRESHOLD = 0.8
   const MIN_BOTTOM_PIPE_HEIGHT = 2 // Minimum height for bottom pipe from ground
@@ -197,7 +197,7 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
             geometry={topPipeGeometry}
             receiveShadow
           >
-            <meshStandardMaterial color="green" />
+            <meshStandardMaterial color="#16c931" />
           </mesh>
           
           {/* Bottom pipe - casts and receives shadows */}
@@ -207,7 +207,7 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
             castShadow
             receiveShadow
           >
-            <meshStandardMaterial color="green" />
+            <meshStandardMaterial color="#16c931" />
           </mesh>
         </group>
       ))}

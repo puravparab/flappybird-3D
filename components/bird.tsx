@@ -124,7 +124,7 @@ export default function Bird({ gameState, onGameOver }: BirdProps) {
       }
       
       const birdModel = scene.clone()
-      birdModel.scale.set(BIRD_RADIUS, 0.3, 0.3) // Scale and position the model
+      birdModel.scale.set(BIRD_RADIUS, BIRD_RADIUS/2, BIRD_RADIUS/2) // Scale and position the model
       birdModel.rotation.set(0, Math.PI * 0.5, 0) // face away from the player
 
       // Ensure materials are properly set but PRESERVE original textures
