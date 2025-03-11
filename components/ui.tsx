@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import useControls from '@/hooks/useControls'
 
 interface UIProps {
   score: number
@@ -11,7 +12,9 @@ interface UIProps {
 }
 
 export default function UI({ score, highScore, gameState, onStart, onRestart }: UIProps) {
-  // Handle keyboard controls
+  const { flap } = useControls()
+  
+  // Handle keyboard controls for starting/restarting
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === 'Space') {
@@ -41,6 +44,17 @@ export default function UI({ score, highScore, gameState, onStart, onRestart }: 
             <h3 className="text-4xl font-bold text-white drop-shadow-lg">Flappy Bird 3D</h3>
             <p className="text-sm text-white drop-shadow-lg">High Score: {highScore}</p>
           </div>
+          
+          {/* Flap button for both mobile and desktop - using onClick */}
+          <div className="absolute bottom-8 left-0 right-0 flex justify-center">
+            <button 
+              className="px-8 py-4 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-full shadow-lg pointer-events-auto opacity-75 active:opacity-100 active:scale-95 transition-all text-xl"
+              onClick={flap}
+              aria-label="Flap button"
+            >
+              Press space
+            </button>
+          </div>
         </>
       )}
       
@@ -58,7 +72,7 @@ export default function UI({ score, highScore, gameState, onStart, onRestart }: 
           >
             Start Game
           </button>
-          <p className="mt-4 text-white">Press Space to flap</p>
+          <p className="mt-4 text-white">Press Space to Flap</p>
         </div>
       )}
       
@@ -69,7 +83,7 @@ export default function UI({ score, highScore, gameState, onStart, onRestart }: 
           <p className="text-xl text-white mb-2">Score: {score}</p>
           {score === highScore && score > 0 ?
             <p className="text-xl text-green-400 mb-8">
-            	New Record! 🎉
+              New Record! 🎉
             </p> :
             <p className="text-xl text-white mb-8">
               Your High Score: {highScore}
