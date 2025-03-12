@@ -60,15 +60,6 @@ export default function UI({ score, highScore, gameState, onStart, onRestart }: 
           <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full m-4">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold text-gray-800">About Flappy Bird 3D</h2>
-              <button 
-                onClick={() => setShowAboutModal(false)}
-                className="text-gray-500 hover:text-gray-700"
-                aria-label="Close"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
             </div>
             
             <div className="prose text-gray-600">
@@ -88,7 +79,7 @@ export default function UI({ score, highScore, gameState, onStart, onRestart }: 
             <div className="mt-6 text-right">
               <button
                 onClick={() => setShowAboutModal(false)}
-                className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-bold rounded-md shadow-md"
+                className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-bold rounded-md shadow-md cursor-pointer"
               >
                 Close
               </button>
@@ -100,21 +91,28 @@ export default function UI({ score, highScore, gameState, onStart, onRestart }: 
       {/* Score display during gameplay */}
       {gameState === 'playing' && (
         <>
+          {/* Additonal screen for tap functionality */}
+          <div 
+            className="absolute inset-0 pointer-events-auto z-0"
+            onClick={flap}
+            aria-label="Tap to flap"
+          />
+          
           {/* Main centered score */}
-          <div className="absolute top-4 left-0 right-0 text-center">
+          <div className="absolute top-4 left-0 right-0 text-center z-10">
             <h2 className="text-4xl font-bold text-white drop-shadow-lg">
               {score}
             </h2>
           </div>
           
           {/* Title and high score in the corner */}
-          <div className="absolute top-4 left-4 text-left">
+          <div className="absolute top-4 left-4 text-left z-10">
             <h3 className="text-xl md:text-4xl font-bold text-white drop-shadow-lg">Flappy Bird 3D</h3>
             <p className="text-sm text-white drop-shadow-lg">High Score: {highScore}</p>
           </div>
           
           {/* Flap button for both mobile and desktop - using onClick */}
-          <div className="absolute bottom-8 left-0 right-0 flex justify-center">
+          <div className="absolute bottom-8 left-0 right-0 flex justify-center z-10">
             <button 
               className="px-8 py-4 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-full shadow-lg pointer-events-auto opacity-75 active:opacity-100 active:scale-95 transition-all text-xl"
               onClick={flap}
