@@ -102,10 +102,8 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
   const calculateOpacity = (relativePipeZ: number) => {
     // If pipe is not far enough behind bird to start fading, keep fully opaque
     if (relativePipeZ < FADE_START_DISTANCE) return 1
-    
     // If pipe is beyond fade end distance, make fully transparent
     if (relativePipeZ >= FADE_END_DISTANCE) return 0
-    
     // Calculate fade percentage (linear interpolation)
     return 1 - (relativePipeZ - FADE_START_DISTANCE) / (FADE_END_DISTANCE - FADE_START_DISTANCE)
   }
