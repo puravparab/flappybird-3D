@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import useControls from '@/hooks/useControls'
+import useDeviceDetect from '@/hooks/useDeviceDetect'
 
 interface UIProps {
   score: number
@@ -14,6 +15,7 @@ interface UIProps {
 export default function UI({ score, highScore, gameState, onStart, onRestart }: UIProps) {
   const { flap } = useControls()
   const [showAboutModal, setShowAboutModal] = useState(false)
+  const { isMobile } = useDeviceDetect()
   
   // Handle keyboard controls for ui interactions
   useEffect(() => {
@@ -63,7 +65,7 @@ export default function UI({ score, highScore, gameState, onStart, onRestart }: 
             </div>
             
             <div className="prose text-gray-600">
-              <p>Flappy Bird 3D is an experiment in creating a 3D browser game using purely AI tools in the least amount of time possible. This project was built in only 5 hours!</p>
+              <p>Flappy Bird 3D is an experiment in creating a 3D browser game using purely AI tools in the least amount of time possible. The first version of this project was built in only 5 hours!</p>
               
               <h3 className="text-lg font-bold mt-4 text-gray-gray-800">Credits:</h3>
               <ul className="list-disc pl-5">
@@ -91,7 +93,7 @@ export default function UI({ score, highScore, gameState, onStart, onRestart }: 
       {/* Score display during gameplay */}
       {gameState === 'playing' && (
         <>
-          {/* Additonal screen for tap functionality */}
+          {/* Additional screen for tap functionality */}
           <div 
             className="absolute inset-0 pointer-events-auto z-0"
             onClick={flap}
@@ -111,14 +113,14 @@ export default function UI({ score, highScore, gameState, onStart, onRestart }: 
             <p className="text-sm text-white drop-shadow-lg">High Score: {highScore}</p>
           </div>
           
-          {/* Flap button for both mobile and desktop - using onClick */}
+          {/* Flap button with conditional text based on device */}
           <div className="absolute bottom-8 left-0 right-0 flex justify-center z-10">
             <button 
               className="px-8 py-4 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-full shadow-lg pointer-events-auto opacity-75 active:opacity-100 active:scale-95 transition-all text-xl"
               onClick={flap}
               aria-label="Flap button"
             >
-              Press space
+              {isMobile ? "Tap screen" : "Press space"}
             </button>
           </div>
         </>
@@ -138,7 +140,9 @@ export default function UI({ score, highScore, gameState, onStart, onRestart }: 
           >
             Start Game
           </button>
-          <p className="mt-2 text-white">Press Space to Flap</p>
+          <p className="mt-2 text-white">
+            {isMobile ? "Tap screen to flap" : "Press Space to flap"}
+          </p>
         </div>
       )}
       
