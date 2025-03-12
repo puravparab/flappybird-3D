@@ -1,4 +1,4 @@
-// pipes.tsx - Modified to show pipes on start screen
+// pipes.tsx - Modified to make pipes fade only after bird completely passes them
 
 'use client'
 
@@ -27,7 +27,6 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
   const [pipeList, setPipeList] = useState<PipePair[]>([])
   const lastPipeId = useRef(0)
   
-  // Constants
   const PIPE_SPACING = 18
   const PIPE_WIDTH = 2 // Keep collision width the same
   const PIPE_GAP_SIZE = 4
@@ -37,6 +36,11 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
   const PIPE_HEIGHT = 30
   const COLLISION_THRESHOLD = 0.8
   const MIN_BOTTOM_PIPE_HEIGHT = 2 // Minimum height for bottom pipe from ground
+  
+  // Pipe fade constants
+  const PIPE_PASS_THRESHOLD = 0 // Distance at which a pipe is considered "passed"
+  const FADE_START_DISTANCE = PIPE_PASS_THRESHOLD // Start fading
+  const FADE_END_DISTANCE = FADE_START_DISTANCE + 3 // Fade completely
   
   // Generate initial pipes when game starts or on the start screen
   useEffect(() => {
@@ -62,7 +66,6 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
     // The minimum gap Y to ensure bottom pipe has minimum height
     // MIN_HEIGHT (ground) + MIN_BOTTOM_PIPE_HEIGHT + PIPE_GAP_SIZE/2
     const minGapY = -4 + MIN_BOTTOM_PIPE_HEIGHT + PIPE_GAP_SIZE/2
-    
     // Random position between minGapY and 9
     return Math.random() * (9 - minGapY) + minGapY
   }
@@ -94,6 +97,18 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
   
   const bottomPipeGeometry = useMemo(() => 
     new THREE.CylinderGeometry(PIPE_RADIUS, PIPE_RADIUS, PIPE_HEIGHT, 16), [])
+  
+  // Calculate opacity based on distance behind bird
+  const calculateOpacity = (relativePipeZ: number) => {
+    // If pipe is not far enough behind bird to start fading, keep fully opaque
+    if (relativePipeZ < FADE_START_DISTANCE) return 1
+    
+    // If pipe is beyond fade end distance, make fully transparent
+    if (relativePipeZ >= FADE_END_DISTANCE) return 0
+    
+    // Calculate fade percentage (linear interpolation)
+    return 1 - (relativePipeZ - FADE_START_DISTANCE) / (FADE_END_DISTANCE - FADE_START_DISTANCE)
+  }
   
   useFrame((state) => {
     if (!pipesRef.current || (gameState !== 'playing' && gameState !== 'start')) return
@@ -138,14 +153,28 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
           if (pipeGroup) {
             pipeGroup.position.z = relativePipeZ
             
-            // Ensure shadows are properly updated on all pipe meshes
-            pipeGroup.children.forEach((child, index) => {
-              if (child instanceof THREE.Mesh) {
-                // Bottom pipe (index 1) should cast shadows
-                if (index === 1) {
-                  child.castShadow = true;
+            // Calculate pipe opacity - only fade for pipes behind the bird
+            const opacity = relativePipeZ > 0 ? calculateOpacity(relativePipeZ) : 1
+            
+            // Update opacity on all pipe meshes
+            pipeGroup.children.forEach(child => {
+              if (child instanceof THREE.Mesh && child.material) {
+                // Need to make material transparent to enable opacity
+                if (Array.isArray(child.material)) {
+                  child.material.forEach(mat => {
+                    mat.transparent = true;
+                    mat.opacity = opacity;
+                  });
+                } else {
+                  child.material.transparent = true;
+                  child.material.opacity = opacity;
                 }
-                child.receiveShadow = true;
+                
+                // Bottom pipe (index 1) should cast shadows
+                if (child === pipeGroup.children[1]) {
+                  child.castShadow = opacity > 0.2; // Only cast shadows if somewhat visible
+                }
+                child.receiveShadow = opacity > 0.2;
               }
             });
           }
@@ -167,19 +196,21 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
           }
         }
         
-        // Mark pipe as passed and removed when bird passes it (only during gameplay)
-        if (gameState === 'playing' && !pipe.passed && relativePipeZ > 0 && Math.abs(relativePipeZ) < PIPE_WIDTH) {
+        // Mark pipe as passed and trigger score when bird passes it
+        if (gameState === 'playing' && !pipe.passed && relativePipeZ > PIPE_PASS_THRESHOLD) {
           onScore() // Increase score
-          return { ...pipe, passed: true, removed: true } // Immediately mark for removal
+          return { ...pipe, passed: true } // Mark as passed but keep it visible for fade effect
+        }
+        
+        // Remove pipe when it's completely faded out
+        if (relativePipeZ >= FADE_END_DISTANCE) {
+          return { ...pipe, removed: true }
         }
         
         return pipe
       }).filter(pipe => !pipe.removed) // Remove pipes marked for removal
     })
   })
-  
-  // Reset pipes when game restarts - no longer needed since we want pipes in start state
-  // This useEffect is removed
   
   return (
     <group ref={pipesRef}>
@@ -195,7 +226,7 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
             geometry={topPipeGeometry}
             receiveShadow
           >
-            <meshStandardMaterial color="#16c931" />
+            <meshStandardMaterial color="#16c931" transparent={true} opacity={1} />
           </mesh>
           
           {/* Bottom pipe - casts and receives shadows */}
@@ -205,7 +236,7 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
             castShadow
             receiveShadow
           >
-            <meshStandardMaterial color="#16c931" />
+            <meshStandardMaterial color="#16c931" transparent={true} opacity={1} />
           </mesh>
         </group>
       ))}
