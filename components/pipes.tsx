@@ -1,4 +1,4 @@
-// pipes.tsx - Modified to make pipes fade only after bird completely passes them
+// pipes.tsx - Modified to make pipes fade only after bird completely passes them and fix double scoring
 
 'use client'
 
@@ -26,6 +26,7 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
   const pipesRef = useRef<THREE.Group>(null)
   const [pipeList, setPipeList] = useState<PipePair[]>([])
   const lastPipeId = useRef(0)
+  const scoredPipeIds = useRef(new Set()).current; // Track scored pipes to prevent double scoring
   
   const PIPE_SPACING = 18
   const PIPE_WIDTH = 2 // Keep collision width the same
@@ -58,6 +59,7 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
       }
       
       setPipeList(initialPipes)
+      scoredPipeIds.clear(); // Reset scored pipes when game state changes
     }
   }, [gameState])
   
@@ -195,8 +197,10 @@ export default function Pipes({ gameState, onScore, onCollision }: PipeProps) {
         }
         
         // Mark pipe as passed and trigger score when bird passes it
-        if (gameState === 'playing' && !pipe.passed && relativePipeZ > PIPE_PASS_THRESHOLD) {
+        // Only score if we haven't already scored this pipe (prevents double scoring)
+        if (gameState === 'playing' && !pipe.passed && !scoredPipeIds.has(pipe.id) && relativePipeZ > PIPE_PASS_THRESHOLD) {
           onScore() // Increase score
+          scoredPipeIds.add(pipe.id); // Mark this pipe as scored
           return { ...pipe, passed: true } // Mark as passed but keep it visible for fade effect
         }
         
